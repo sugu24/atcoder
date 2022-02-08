@@ -1,0 +1,43 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define rep(i,n) for(int i = 0; i < n; i++)
+using P = pair<int, int>;
+
+int main(){
+    int N, M;
+    cin >> N >> M;
+    vector<int> H(N);
+    rep(i,N) cin >> H[i];
+    vector<vector<int>> edge(N);
+    rep(i,M){
+        int u, v;
+        cin >> u >> v;
+        u--;v--;
+        edge[u].push_back(v);
+        edge[v].push_back(u);
+    }
+
+    // ダイクストラ
+    const int inf = 1001001001;
+    priority_queue<P, vector<P>, greater<P>> q;
+    q.emplace(0,0);
+    vector<int> dist(N, inf);
+    while (!q.empty()){
+        auto [c,frm] = q.top(); q.pop();
+        if (dist[frm] < inf) continue;
+        dist[frm] = c;
+        for (int to : edge[frm]){
+            int cost = c + max(0,H[to]-H[frm]);
+            if (dist[to] <= cost) continue;
+            q.emplace(cost, to);
+        }
+    }
+    
+    int ans = 0;
+    rep(i, N){
+        ans = max(ans, H[0]-H[i]-dist[i]);
+    }
+    cout << ans;
+    return 0;
+}

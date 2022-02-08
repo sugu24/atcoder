@@ -1,0 +1,60 @@
+template <class T> 
+class SegmentTree{
+    private:
+        vector<T> tree; // tree本体
+        T (*func)(T,T); // 乗せる関数
+        T id;    // 初期値
+        int length = 1; // 葉ノード以外の長さ
+
+    public:
+        SegmentTree(vector<T> *v, T(*func)(T,T), T id) : func(func), id(id)
+        {
+            // 葉ノード以外の長さ取得
+            int n = v->size();
+            while (n > 0) { length <<= 1; n >>= 1; }
+
+            // treeにvを代入
+            for (int i = 0; i < 2 * length; i++) tree.push_back(id);
+            for (int i = 0; i < v->size(); i++) tree.at(length+i) = v->at(i);
+
+            // treeを構築
+            for (int i = length-1; i >= 0; i--) tree.at(i) = func(tree.at(2*i), tree.at(2*i+1));
+        }
+
+        // treeのアップデート 0-indexの葉ノードをvalueにする
+        void update(int index, T value){
+            index += length;
+            tree.at(index) = value;
+
+            while (index > 0){
+                index /= 2;
+                tree.at(index) = func(tree.at(2*index), tree.at(2*index+1));
+            }
+        }
+
+        // [left, right]の区間で取得
+        T query(int left, int right){
+            T res = id;
+            left += length;
+            right += length;
+
+            while (left < right){
+                if (left & 1){
+                    res = func(res, tree.at(left));
+                    left += 1;
+                }
+                if (!(right & 1)){
+                    res = func(res, tree.at(right));
+                    right -= 1;
+                }
+                left >>= 1;
+                right >>= 1;
+            }
+            if (left == right)
+                res = func(res, tree.at(left));
+            
+            return res;
+        }
+    
+    // SegmentTree<int> seg(&v, [](int x, int y){ return x+y; }, 0);
+};

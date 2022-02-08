@@ -1,0 +1,29 @@
+import heapq
+
+N, M = map(int, input().split())
+H = list(map(int, input().split()))
+edge = [[] for i in range(N)]
+for m in range(M):
+    u,v = map(int, input().split())
+    u -= 1
+    v -= 1
+    edge[u].append(v)
+    edge[v].append(u)
+
+inf = 10**10
+dist = [inf]*N
+q = [(0,0)]
+dist[0] = 0
+while q:
+    c, frm = heapq.heappop(q)
+    if dist[frm] < c: continue
+    for to in edge[frm]:
+        cst = c + max(0,H[to]-H[frm])
+        if dist[to] > cst:
+            dist[to] = cst
+            heapq.heappush(q,(cst, to))
+
+ans = 0
+for i in range(N):
+    ans = max(ans, H[0]-H[i]-dist[i])
+print(ans)
